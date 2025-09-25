@@ -269,3 +269,14 @@ process.on('SIGINT', async () => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+// Add this BEFORE the error handler
+app.get("/reset-admin", async (req, res) => {
+  try {
+    await User.deleteOne({ username: "admin" });
+    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+    await new User({ username: "admin", password: hashedPassword, role: "admin" }).save();
+    res.json({ success: true, message: "Admin reset", password: ADMIN_PASSWORD });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
