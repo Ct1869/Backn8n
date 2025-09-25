@@ -1,388 +1,271 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require('cors');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connection
-mongoose.connect(
-  "mongodb+srv://jmc_db_user:6RWm59mCrLGU20hP@phone-manager.rqeyqhc.mongodb.net/?retryWrites=true&w=majority&appName=phone-manager"
-);
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://jmc_db_user:6RWm59mCrLGU20hP@phone-manager.rqeyqhc.mongodb.net/?retryWrites=true&w=majority&appName=phone-manager";
+const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
-// Schema & Model
+mongoose.connect(MONGODB_URI);
+
+// Schemas
 const phoneSchema = new mongoose.Schema({
   number: { type: String, required: true, unique: true },
   mode: { type: String, enum: ["CALL", "OTP"], default: "CALL" },
-}, {
-  timestamps: true // Add timestamps for created/updated dates
-});
+  tags: [{ type: String, trim: true, lowercase: true }],
+  notes: { type: String, default: "" },
+  lastUsed: { type: Date },
+  usageCount: { type: Number, default: 0 }
+}, { timestamps: true });
+
+phoneSchema.index({ tags: 1 });
+phoneSchema.index({ number: 1 });
 
 const PhoneMode = mongoose.model("PhoneMode", phoneSchema);
 
-// Your numbers for initial seeding
-const numbers = [
-  { number: "+17753055823", mode: "CALL" },
-  { number: "+16693454835", mode: "CALL" },
-  { number: "+19188183039", mode: "CALL" },
-  { number: "+15088127382", mode: "CALL" },
-  { number: "+18722965039", mode: "CALL" },
-  { number: "+14172218933", mode: "CALL" },
-  { number: "+19191919191", mode: "OTP" }, // your custom OTP number
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["admin"], default: "admin" },
+  lastLogin: { type: Date }
+}, { timestamps: true });
+
+const User = mongoose.model("User", userSchema);
+
+// Seed
+const seedNumbers = [
+  { number: "+17753055823", mode: "CALL", tags: [] },
+  { number: "+16693454835", mode: "CALL", tags: [] },
+  { number: "+19188183039", mode: "CALL", tags: [] },
+  { number: "+15088127382", mode: "CALL", tags: [] },
+  { number: "+18722965039", mode: "CALL", tags: [] },
+  { number: "+14172218933", mode: "CALL", tags: [] },
+  { number: "+19191919191", mode: "OTP", tags: [] }
 ];
 
-// Seed DB initially
 async function seedDB() {
   try {
-    for (const num of numbers) {
-      await PhoneMode.updateOne(
-        { number: num.number },
-        { $set: { mode: num.mode } },
-        { upsert: true }
-      );
+    const existingAdmin = await User.findOne({ username: "admin" });
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+      await new User({ username: "admin", password: hashedPassword, role: "admin" }).save();
+      console.log("Admin user created");
     }
-    console.log("✅ Numbers initialized in database");
+
+    const existingCount = await PhoneMode.countDocuments();
+    if (existingCount === 0) {
+      for (const num of seedNumbers) {
+        await PhoneMode.updateOne(
+          { number: num.number },
+          { $set: { mode: num.mode, tags: num.tags || [], notes: "", usageCount: 0 }},
+          { upsert: true }
+        );
+      }
+      console.log("Numbers initialized");
+    }
   } catch (err) {
-    console.error("❌ Error seeding DB:", err);
+    console.error("Error seeding:", err);
   }
 }
 seedDB();
 
-// Normalize function
+// Auth middleware
+const authenticate = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: "No token provided" });
+    
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(401).json({ error: "Invalid token" });
+    
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
 function normalize(num) {
   return (num || "").toString().trim();
 }
 
-// ==================== API ENDPOINTS ====================
+// Public endpoints
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: "Username and password required" });
 
-// Original lookup endpoint (single number)
+    const user = await User.findOne({ username });
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ success: true, token, user: { id: user._id, username: user.username, role: user.role }});
+  } catch (error) {
+    res.status(500).json({ error: "Login failed" });
+  }
+});
+
+app.get("/verify", authenticate, (req, res) => {
+  res.json({ success: true, user: { id: req.user._id, username: req.user.username, role: req.user.role }});
+});
+
 app.post("/lookup", async (req, res) => {
   try {
     const rawCalled = req.body.Called || req.query.Called;
     const rawTo = req.body.To || req.query.To;
-
     const calledNumber = normalize(rawCalled || rawTo);
-
-    console.log("DEBUG raw Called:", rawCalled);
-    console.log("DEBUG raw To:", rawTo);
-    console.log("DEBUG normalized calledNumber:", calledNumber);
-
+    
     const found = await PhoneMode.findOne({ number: calledNumber });
-
+    if (found) {
+      found.lastUsed = new Date();
+      found.usageCount = (found.usageCount || 0) + 1;
+      await found.save();
+    }
+    
     res.json({
       calledNumber,
       mode: found ? found.mode : "UNKNOWN",
+      tags: found ? found.tags : [],
       from: req.body.From || req.query.From,
       callSid: req.body.CallSid || req.query.CallSid,
     });
   } catch (err) {
-    console.error("❌ Error in lookup:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Lookup failed" });
   }
 });
 
-// Get all numbers in database
-app.get("/numbers", async (req, res) => {
+// Protected endpoints
+app.get("/health", authenticate, async (req, res) => {
   try {
-    const allNumbers = await PhoneMode.find().sort({ createdAt: -1 });
-    res.json(allNumbers);
+    await mongoose.connection.db.admin().ping();
+    res.json({ status: "healthy", database: "connected", timestamp: new Date().toISOString() });
+  } catch (error) {
+    res.status(500).json({ status: "unhealthy", error: error.message });
+  }
+});
+
+app.get("/numbers", authenticate, async (req, res) => {
+  try {
+    const { tag, mode, search } = req.query;
+    let query = {};
+    
+    if (tag) query.tags = { $in: [tag.toLowerCase()] };
+    if (mode && ["CALL", "OTP"].includes(mode)) query.mode = mode;
+    if (search) query.number = { $regex: search, $options: 'i' };
+    
+    const numbers = await PhoneMode.find(query).sort({ createdAt: -1 });
+    res.json(numbers);
   } catch (err) {
-    console.error("❌ Error fetching numbers:", err);
-    res.status(500).json({ error: "Failed to fetch numbers" });
+    res.status(500).json({ error: "Failed to fetch" });
   }
 });
 
-// Add new number endpoint
-app.post("/add-number", async (req, res) => {
+app.post("/add-number", authenticate, async (req, res) => {
   try {
-    const { number, mode } = req.body;
+    const { number, mode, tags, notes } = req.body;
+    if (!number || !mode) return res.status(400).json({ error: "Number and mode required" });
     
-    if (!number || !mode) {
-      return res.status(400).json({ error: "Number and mode are required" });
-    }
-    
-    // Normalize the number
     const normalizedNumber = normalize(number);
+    if (!["CALL", "OTP"].includes(mode)) return res.status(400).json({ error: "Invalid mode" });
     
-    if (!normalizedNumber) {
-      return res.status(400).json({ error: "Invalid number format" });
+    if (await PhoneMode.findOne({ number: normalizedNumber })) {
+      return res.status(400).json({ error: "Number exists" });
     }
     
-    if (!["CALL", "OTP"].includes(mode)) {
-      return res.status(400).json({ error: "Mode must be CALL or OTP" });
-    }
-    
-    // Check if number already exists
-    const existing = await PhoneMode.findOne({ number: normalizedNumber });
-    if (existing) {
-      return res.status(400).json({ error: "Number already exists" });
-    }
-    
-    const newNumber = new PhoneMode({ 
-      number: normalizedNumber, 
-      mode 
-    });
-    
-    const saved = await newNumber.save();
-    
-    console.log("✅ Number added:", saved.number, "Mode:", saved.mode);
-    
-    res.json({
-      success: true,
-      message: "Number added successfully",
-      data: saved
-    });
-    
+    const processedTags = Array.isArray(tags) ? tags.filter(t => t && t.trim()).map(t => t.trim().toLowerCase()) : [];
+    const saved = await new PhoneMode({ number: normalizedNumber, mode, tags: processedTags, notes: notes || "", usageCount: 0 }).save();
+    res.json({ success: true, data: saved });
   } catch (err) {
-    console.error("❌ Error adding number:", err);
-    
-    if (err.code === 11000) {
-      return res.status(400).json({ error: "Number already exists" });
-    }
-    
-    res.status(500).json({ error: "Failed to add number" });
+    res.status(500).json({ error: "Failed to add" });
   }
 });
 
-// Update mode endpoint
-app.put("/update-mode", async (req, res) => {
+app.put("/update-number", authenticate, async (req, res) => {
   try {
-    const { id, mode } = req.body;
+    const { id, mode, tags, notes } = req.body;
+    if (!id) return res.status(400).json({ error: "ID required" });
     
-    if (!id || !mode) {
-      return res.status(400).json({ error: "ID and mode are required" });
-    }
+    const updateData = {};
+    if (mode && ["CALL", "OTP"].includes(mode)) updateData.mode = mode;
+    if (Array.isArray(tags)) updateData.tags = tags.filter(t => t && t.trim()).map(t => t.trim().toLowerCase());
+    if (notes !== undefined) updateData.notes = notes;
     
-    if (!["CALL", "OTP"].includes(mode)) {
-      return res.status(400).json({ error: "Mode must be CALL or OTP" });
-    }
+    const updated = await PhoneMode.findByIdAndUpdate(id, updateData, { new: true });
+    if (!updated) return res.status(404).json({ error: "Not found" });
     
-    const updated = await PhoneMode.findByIdAndUpdate(
-      id,
-      { mode },
-      { new: true }
-    );
-    
-    if (!updated) {
-      return res.status(404).json({ error: "Number not found" });
-    }
-    
-    console.log("✅ Mode updated:", updated.number, "New mode:", updated.mode);
-    
-    res.json({
-      success: true,
-      message: "Mode updated successfully",
-      data: updated
-    });
-    
+    res.json({ success: true, data: updated });
   } catch (err) {
-    console.error("❌ Error updating mode:", err);
-    res.status(500).json({ error: "Failed to update mode" });
+    res.status(500).json({ error: "Update failed" });
   }
 });
 
-// Delete number endpoint
-app.delete("/delete-number/:id", async (req, res) => {
+app.delete("/delete-number/:id", authenticate, async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    if (!id) {
-      return res.status(400).json({ error: "ID is required" });
-    }
-    
-    const deleted = await PhoneMode.findByIdAndDelete(id);
-    
-    if (!deleted) {
-      return res.status(404).json({ error: "Number not found" });
-    }
-    
-    console.log("✅ Number deleted:", deleted.number);
-    
-    res.json({
-      success: true,
-      message: "Number deleted successfully",
-      data: deleted
-    });
-    
+    const deleted = await PhoneMode.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "Not found" });
+    res.json({ success: true, data: deleted });
   } catch (err) {
-    console.error("❌ Error deleting number:", err);
-    res.status(500).json({ error: "Failed to delete number" });
+    res.status(500).json({ error: "Delete failed" });
   }
 });
 
-// Get statistics endpoint
-app.get("/stats", async (req, res) => {
+app.get("/stats", authenticate, async (req, res) => {
   try {
     const total = await PhoneMode.countDocuments();
     const callCount = await PhoneMode.countDocuments({ mode: "CALL" });
     const otpCount = await PhoneMode.countDocuments({ mode: "OTP" });
+    const tagStats = await PhoneMode.aggregate([
+      { $unwind: "$tags" },
+      { $group: { _id: "$tags", count: { $sum: 1 }}},
+      { $sort: { count: -1 }},
+      { $limit: 10 }
+    ]);
     
-    res.json({
-      total,
-      call: callCount,
-      otp: otpCount,
-      timestamp: new Date().toISOString()
-    });
+    res.json({ total, call: callCount, otp: otpCount, tagStats, timestamp: new Date().toISOString() });
   } catch (err) {
-    console.error("❌ Error fetching stats:", err);
-    res.status(500).json({ error: "Failed to fetch statistics" });
+    res.status(500).json({ error: "Stats failed" });
   }
 });
 
-// Health check endpoint
-app.get("/health", async (req, res) => {
+app.get("/tags", authenticate, async (req, res) => {
   try {
-    // Check database connection
-    await mongoose.connection.db.admin().ping();
-    
-    res.json({
-      status: "healthy",
-      database: "connected",
-      timestamp: new Date().toISOString()
-    });
+    const tags = await PhoneMode.aggregate([
+      { $unwind: "$tags" },
+      { $group: { _id: "$tags", count: { $sum: 1 }}},
+      { $sort: { count: -1 }}
+    ]);
+    res.json(tags.map(t => ({ name: t._id, count: t.count })));
   } catch (err) {
-    console.error("❌ Health check failed:", err);
-    res.status(500).json({
-      status: "unhealthy",
-      database: "disconnected",
-      error: err.message,
-      timestamp: new Date().toISOString()
-    });
+    res.status(500).json({ error: "Tags failed" });
   }
 });
 
-// Bulk add numbers endpoint
-app.post("/bulk-add", async (req, res) => {
-  try {
-    const { numbers } = req.body;
-    
-    if (!Array.isArray(numbers) || numbers.length === 0) {
-      return res.status(400).json({ error: "Numbers array is required" });
-    }
-    
-    const results = {
-      added: [],
-      errors: [],
-      skipped: []
-    };
-    
-    for (const item of numbers) {
-      try {
-        const { number, mode = "CALL" } = item;
-        const normalizedNumber = normalize(number);
-        
-        if (!normalizedNumber) {
-          results.errors.push({ number, error: "Invalid number format" });
-          continue;
-        }
-        
-        if (!["CALL", "OTP"].includes(mode)) {
-          results.errors.push({ number, error: "Invalid mode" });
-          continue;
-        }
-        
-        // Check if exists
-        const existing = await PhoneMode.findOne({ number: normalizedNumber });
-        if (existing) {
-          results.skipped.push({ number: normalizedNumber, reason: "Already exists" });
-          continue;
-        }
-        
-        const newNumber = new PhoneMode({ number: normalizedNumber, mode });
-        const saved = await newNumber.save();
-        results.added.push(saved);
-        
-      } catch (err) {
-        results.errors.push({ number: item.number, error: err.message });
-      }
-    }
-    
-    console.log(`✅ Bulk add completed: ${results.added.length} added, ${results.skipped.length} skipped, ${results.errors.length} errors`);
-    
-    res.json({
-      success: true,
-      message: `Bulk operation completed: ${results.added.length} added, ${results.skipped.length} skipped, ${results.errors.length} errors`,
-      results
-    });
-    
-  } catch (err) {
-    console.error("❌ Error in bulk add:", err);
-    res.status(500).json({ error: "Failed to process bulk add" });
-  }
-});
-
-// Search numbers endpoint
-app.get("/search", async (req, res) => {
-  try {
-    const { q, mode } = req.query;
-    
-    let query = {};
-    
-    if (q) {
-      query.number = { $regex: q, $options: 'i' };
-    }
-    
-    if (mode && ["CALL", "OTP"].includes(mode)) {
-      query.mode = mode;
-    }
-    
-    const numbers = await PhoneMode.find(query).sort({ createdAt: -1 });
-    
-    res.json({
-      query: { search: q, mode },
-      count: numbers.length,
-      numbers
-    });
-    
-  } catch (err) {
-    console.error("❌ Error in search:", err);
-    res.status(500).json({ error: "Failed to search numbers" });
-  }
-});
-
-// 404 handler will be handled by Express default behavior
-
-// Global error handler
 app.use((err, req, res, next) => {
-  console.error("❌ Unhandled error:", err);
-  res.status(500).json({ error: "Internal server error" });
+  console.error("Error:", err);
+  res.status(500).json({ error: "Internal error" });
 });
 
-// Database connection events
-mongoose.connection.on('connected', () => {
-  console.log('✅ MongoDB connected successfully');
-});
+mongoose.connection.on('connected', () => console.log('MongoDB connected'));
+mongoose.connection.on('error', (err) => console.error('MongoDB error:', err));
 
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB disconnected');
-});
-
-// Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n⚠️ Received SIGINT, shutting down gracefully...');
   await mongoose.connection.close();
   process.exit(0);
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📋 Available endpoints:`);
-  console.log(`   POST /lookup - Lookup phone number mode`);
-  console.log(`   GET /numbers - Get all numbers`);
-  console.log(`   POST /add-number - Add new number`);
-  console.log(`   PUT /update-mode - Update number mode`);
-  console.log(`   DELETE /delete-number/:id - Delete number`);
-  console.log(`   GET /stats - Get statistics`);
-  console.log(`   GET /health - Health check`);
-  console.log(`   POST /bulk-add - Add multiple numbers`);
-  console.log(`   GET /search - Search numbers`);
-});
+app.listen(PORT, () => console.log(`Server on port ${PORT}`));
