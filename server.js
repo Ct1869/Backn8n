@@ -252,31 +252,3 @@ app.get("/tags", authenticate, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Tags failed" });
   }
-});
-
-app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).json({ error: "Internal error" });
-});
-
-mongoose.connection.on('connected', () => console.log('MongoDB connected'));
-mongoose.connection.on('error', (err) => console.error('MongoDB error:', err));
-
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  process.exit(0);
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
-// Add this BEFORE the error handler
-app.get("/reset-admin", async (req, res) => {
-  try {
-    await User.deleteOne({ username: "admin" });
-    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
-    await new User({ username: "admin", password: hashedPassword, role: "admin" }).save();
-    res.json({ success: true, message: "Admin reset", password: ADMIN_PASSWORD });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
