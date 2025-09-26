@@ -1,0 +1,1322 @@
+{
+  "201": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "202": {
+    "state": "District of Columbia",
+    "abbr": "DC"
+  },
+  "203": {
+    "state": "Connecticut",
+    "abbr": "CT"
+  },
+  "205": {
+    "state": "Alabama",
+    "abbr": "AL"
+  },
+  "206": {
+    "state": "Washington",
+    "abbr": "WA"
+  },
+  "207": {
+    "state": "Maine",
+    "abbr": "ME"
+  },
+  "208": {
+    "state": "Idaho",
+    "abbr": "ID"
+  },
+  "209": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "210": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "212": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "213": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "214": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "215": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "216": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "217": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "218": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "219": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "220": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "223": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "224": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "225": {
+    "state": "Louisiana",
+    "abbr": "LA"
+  },
+  "228": {
+    "state": "Mississippi",
+    "abbr": "MS"
+  },
+  "229": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "231": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "234": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "239": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "240": {
+    "state": "Maryland",
+    "abbr": "MD"
+  },
+  "248": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "251": {
+    "state": "Alabama",
+    "abbr": "AL"
+  },
+  "252": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "253": {
+    "state": "Washington",
+    "abbr": "WA"
+  },
+  "254": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "256": {
+    "state": "Alabama",
+    "abbr": "AL"
+  },
+  "260": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "262": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "267": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "269": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "270": {
+    "state": "Kentucky",
+    "abbr": "KY"
+  },
+  "272": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "274": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "276": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "278": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "281": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "301": {
+    "state": "Maryland",
+    "abbr": "MD"
+  },
+  "302": {
+    "state": "Delaware",
+    "abbr": "DE"
+  },
+  "303": {
+    "state": "Colorado",
+    "abbr": "CO"
+  },
+  "304": {
+    "state": "West Virginia",
+    "abbr": "WV"
+  },
+  "305": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "307": {
+    "state": "Wyoming",
+    "abbr": "WY"
+  },
+  "308": {
+    "state": "Nebraska",
+    "abbr": "NE"
+  },
+  "309": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "310": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "312": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "313": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "314": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "315": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "316": {
+    "state": "Kansas",
+    "abbr": "KS"
+  },
+  "317": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "318": {
+    "state": "Louisiana",
+    "abbr": "LA"
+  },
+  "319": {
+    "state": "Iowa",
+    "abbr": "IA"
+  },
+  "320": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "321": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "323": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "325": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "330": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "331": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "332": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "334": {
+    "state": "Alabama",
+    "abbr": "AL"
+  },
+  "336": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "337": {
+    "state": "Louisiana",
+    "abbr": "LA"
+  },
+  "339": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "346": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "347": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "351": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "352": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "360": {
+    "state": "Washington",
+    "abbr": "WA"
+  },
+  "361": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "364": {
+    "state": "Kentucky",
+    "abbr": "KY"
+  },
+  "380": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "385": {
+    "state": "Utah",
+    "abbr": "UT"
+  },
+  "386": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "401": {
+    "state": "Rhode Island",
+    "abbr": "RI"
+  },
+  "402": {
+    "state": "Nebraska",
+    "abbr": "NE"
+  },
+  "404": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "405": {
+    "state": "Oklahoma",
+    "abbr": "OK"
+  },
+  "406": {
+    "state": "Montana",
+    "abbr": "MT"
+  },
+  "407": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "408": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "409": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "410": {
+    "state": "Maryland",
+    "abbr": "MD"
+  },
+  "412": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "413": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "414": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "415": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "417": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "419": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "423": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "424": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "425": {
+    "state": "Washington",
+    "abbr": "WA"
+  },
+  "430": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "432": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "434": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "435": {
+    "state": "Utah",
+    "abbr": "UT"
+  },
+  "440": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "442": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "443": {
+    "state": "Maryland",
+    "abbr": "MD"
+  },
+  "445": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "458": {
+    "state": "Oregon",
+    "abbr": "OR"
+  },
+  "463": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "464": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "469": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "470": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "475": {
+    "state": "Connecticut",
+    "abbr": "CT"
+  },
+  "478": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "479": {
+    "state": "Arkansas",
+    "abbr": "AR"
+  },
+  "480": {
+    "state": "Arizona",
+    "abbr": "AZ"
+  },
+  "484": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "501": {
+    "state": "Arkansas",
+    "abbr": "AR"
+  },
+  "502": {
+    "state": "Kentucky",
+    "abbr": "KY"
+  },
+  "503": {
+    "state": "Oregon",
+    "abbr": "OR"
+  },
+  "504": {
+    "state": "Louisiana",
+    "abbr": "LA"
+  },
+  "505": {
+    "state": "New Mexico",
+    "abbr": "NM"
+  },
+  "507": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "508": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "509": {
+    "state": "Washington",
+    "abbr": "WA"
+  },
+  "510": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "512": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "513": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "515": {
+    "state": "Iowa",
+    "abbr": "IA"
+  },
+  "516": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "517": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "518": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "520": {
+    "state": "Arizona",
+    "abbr": "AZ"
+  },
+  "530": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "531": {
+    "state": "Nebraska",
+    "abbr": "NE"
+  },
+  "534": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "539": {
+    "state": "Oklahoma",
+    "abbr": "OK"
+  },
+  "540": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "541": {
+    "state": "Oregon",
+    "abbr": "OR"
+  },
+  "551": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "559": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "561": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "562": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "563": {
+    "state": "Iowa",
+    "abbr": "IA"
+  },
+  "564": {
+    "state": "Washington",
+    "abbr": "WA"
+  },
+  "567": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "570": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "571": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "573": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "574": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "575": {
+    "state": "New Mexico",
+    "abbr": "NM"
+  },
+  "580": {
+    "state": "Oklahoma",
+    "abbr": "OK"
+  },
+  "582": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "585": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "586": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "601": {
+    "state": "Mississippi",
+    "abbr": "MS"
+  },
+  "602": {
+    "state": "Arizona",
+    "abbr": "AZ"
+  },
+  "603": {
+    "state": "New Hampshire",
+    "abbr": "NH"
+  },
+  "605": {
+    "state": "South Dakota",
+    "abbr": "SD"
+  },
+  "606": {
+    "state": "Kentucky",
+    "abbr": "KY"
+  },
+  "607": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "608": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "609": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "610": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "612": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "614": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "615": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "616": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "617": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "618": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "619": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "620": {
+    "state": "Kansas",
+    "abbr": "KS"
+  },
+  "623": {
+    "state": "Arizona",
+    "abbr": "AZ"
+  },
+  "626": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "628": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "629": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "630": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "631": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "636": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "640": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "641": {
+    "state": "Iowa",
+    "abbr": "IA"
+  },
+  "646": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "650": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "651": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "657": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "659": {
+    "state": "Alabama",
+    "abbr": "AL"
+  },
+  "660": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "661": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "662": {
+    "state": "Mississippi",
+    "abbr": "MS"
+  },
+  "667": {
+    "state": "Maryland",
+    "abbr": "MD"
+  },
+  "669": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "678": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "680": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "681": {
+    "state": "West Virginia",
+    "abbr": "WV"
+  },
+  "682": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "689": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "701": {
+    "state": "North Dakota",
+    "abbr": "ND"
+  },
+  "702": {
+    "state": "Nevada",
+    "abbr": "NV"
+  },
+  "703": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "704": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "706": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "707": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "708": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "712": {
+    "state": "Iowa",
+    "abbr": "IA"
+  },
+  "713": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "714": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "715": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "716": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "717": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "718": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "719": {
+    "state": "Colorado",
+    "abbr": "CO"
+  },
+  "720": {
+    "state": "Colorado",
+    "abbr": "CO"
+  },
+  "724": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "725": {
+    "state": "Nevada",
+    "abbr": "NV"
+  },
+  "727": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "730": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "731": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "732": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "734": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "737": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "740": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "743": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "747": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "754": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "757": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "760": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "762": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "763": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "765": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "769": {
+    "state": "Mississippi",
+    "abbr": "MS"
+  },
+  "770": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "771": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "772": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "773": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "774": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "775": {
+    "state": "Nevada",
+    "abbr": "NV"
+  },
+  "779": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "781": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "785": {
+    "state": "Kansas",
+    "abbr": "KS"
+  },
+  "786": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "801": {
+    "state": "Utah",
+    "abbr": "UT"
+  },
+  "802": {
+    "state": "Vermont",
+    "abbr": "VT"
+  },
+  "803": {
+    "state": "South Carolina",
+    "abbr": "SC"
+  },
+  "804": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "805": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "806": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "808": {
+    "state": "Hawaii",
+    "abbr": "HI"
+  },
+  "810": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "812": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "813": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "814": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "815": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "816": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "817": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "818": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "828": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "830": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "831": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "832": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "838": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "839": {
+    "state": "South Carolina",
+    "abbr": "SC"
+  },
+  "840": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "843": {
+    "state": "South Carolina",
+    "abbr": "SC"
+  },
+  "845": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "847": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "848": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "850": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "854": {
+    "state": "South Carolina",
+    "abbr": "SC"
+  },
+  "856": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "857": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "858": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "859": {
+    "state": "Kentucky",
+    "abbr": "KY"
+  },
+  "860": {
+    "state": "Connecticut",
+    "abbr": "CT"
+  },
+  "862": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "863": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "864": {
+    "state": "South Carolina",
+    "abbr": "SC"
+  },
+  "865": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "870": {
+    "state": "Arkansas",
+    "abbr": "AR"
+  },
+  "872": {
+    "state": "Illinois",
+    "abbr": "IL"
+  },
+  "878": {
+    "state": "Pennsylvania",
+    "abbr": "PA"
+  },
+  "901": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "903": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "904": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "906": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "907": {
+    "state": "Alaska",
+    "abbr": "AK"
+  },
+  "908": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "909": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "910": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "912": {
+    "state": "Georgia",
+    "abbr": "GA"
+  },
+  "913": {
+    "state": "Kansas",
+    "abbr": "KS"
+  },
+  "914": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "915": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "916": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "917": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "918": {
+    "state": "Oklahoma",
+    "abbr": "OK"
+  },
+  "919": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "920": {
+    "state": "Wisconsin",
+    "abbr": "WI"
+  },
+  "925": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "927": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "928": {
+    "state": "Arizona",
+    "abbr": "AZ"
+  },
+  "929": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "930": {
+    "state": "Indiana",
+    "abbr": "IN"
+  },
+  "931": {
+    "state": "Tennessee",
+    "abbr": "TN"
+  },
+  "934": {
+    "state": "New York",
+    "abbr": "NY"
+  },
+  "936": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "937": {
+    "state": "Ohio",
+    "abbr": "OH"
+  },
+  "938": {
+    "state": "Alabama",
+    "abbr": "AL"
+  },
+  "940": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "941": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "945": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "947": {
+    "state": "Michigan",
+    "abbr": "MI"
+  },
+  "948": {
+    "state": "Virginia",
+    "abbr": "VA"
+  },
+  "949": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "951": {
+    "state": "California",
+    "abbr": "CA"
+  },
+  "952": {
+    "state": "Minnesota",
+    "abbr": "MN"
+  },
+  "954": {
+    "state": "Florida",
+    "abbr": "FL"
+  },
+  "956": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "959": {
+    "state": "Connecticut",
+    "abbr": "CT"
+  },
+  "970": {
+    "state": "Colorado",
+    "abbr": "CO"
+  },
+  "971": {
+    "state": "Oregon",
+    "abbr": "OR"
+  },
+  "972": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "973": {
+    "state": "New Jersey",
+    "abbr": "NJ"
+  },
+  "975": {
+    "state": "Missouri",
+    "abbr": "MO"
+  },
+  "978": {
+    "state": "Massachusetts",
+    "abbr": "MA"
+  },
+  "979": {
+    "state": "Texas",
+    "abbr": "TX"
+  },
+  "980": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "984": {
+    "state": "North Carolina",
+    "abbr": "NC"
+  },
+  "985": {
+    "state": "Louisiana",
+    "abbr": "LA"
+  },
+  "986": {
+    "state": "Idaho",
+    "abbr": "ID"
+  },
+  "989": {
+    "state": "Michigan",
+    "abbr": "MI"
+  }
+}
