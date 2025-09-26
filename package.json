@@ -1,18 +1,11 @@
 {
-  "name": "phone-manager-backend",
+  "name": "phone-manager-frontend",
   "version": "1.0.0",
-  "description": "Phone Manager Backend API",
-  "main": "index.js",
+  "description": "Static Phone Manager frontend",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "serve -s ."
   },
-  "dependencies": {
-    "express": "^4.18.0",
-    "mongoose": "^8.0.0",
-    "cors": "^2.8.5"
-  },
-  "engines": {
-    "node": "18.x"
+  "devDependencies": {
+    "serve": "^14.2.1"
   }
 }
