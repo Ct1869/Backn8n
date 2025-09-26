@@ -1,403 +1,337 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Phone Manager - Secure Panel</title>
-  <meta name="description" content="Secure phone number management with tagging, notes, filtering, and state auto-detection"/>
-  <style>
-    :root{
-      --background: 220 13% 7%;
-      --foreground: 0 0% 88%;
-      --card: 220 13% 12%;
-      --border: 220 13% 20%;
-      --primary: 178 67% 53%;
-      --success: 142 69% 58%;
-      --warning: 45 100% 60%;
-      --destructive: 0 84% 60%;
-      --radius: .75rem;
+// server.js
+// Phone Manager Backend — secure + tags + notes + state auto-detect
+
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+
+const app = express();
+
+// ---------- Config ----------
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://jmc_db_user:6RWm59mCrLGU20hP@phone-manager.rqeyqhc.mongodb.net/?retryWrites=true&w=majority&appName=phone-manager";
+// IMPORTANT: set ADMIN_PASSWORD & JWT_SECRET in your environment
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me";
+const JWT_SECRET = process.env.JWT_SECRET || "super-secret-change-me";
+
+// ---------- Middleware ----------
+app.use(express.json());
+app.use(cors());
+
+// ---------- DB ----------
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// ---------- Schema ----------
+const phoneSchema = new mongoose.Schema(
+  {
+    number: { type: String, required: true, unique: true },
+    mode: { type: String, enum: ["CALL", "OTP"], default: "CALL" },
+    tags: { type: [String], default: [] },
+    notes: { type: String, default: "" },
+    state: { type: String, default: "Unknown" }, // Full state name (e.g., "Texas")
+  },
+  { timestamps: true }
+);
+
+const PhoneMode = mongoose.model("PhoneMode", phoneSchema);
+
+// ---------- Area Code → State (Partial List; extend as needed) ----------
+const areaCodeToState = {
+  // California
+  "209":"California","213":"California","279":"California","310":"California","323":"California","341":"California","369":"California","408":"California","415":"California","424":"California","442":"California","510":"California","530":"California","559":"California","562":"California","619":"California","626":"California","650":"California","657":"California","661":"California","669":"California","707":"California","714":"California","747":"California","752":"California","760":"California","805":"California","818":"California","820":"California","831":"California","840":"California","858":"California","909":"California","916":"California","925":"California","949":"California","951":"California",
+  // Texas
+  "210":"Texas","214":"Texas","254":"Texas","281":"Texas","325":"Texas","346":"Texas","361":"Texas","409":"Texas","430":"Texas","432":"Texas","469":"Texas","512":"Texas","682":"Texas","713":"Texas","726":"Texas","737":"Texas","806":"Texas","817":"Texas","830":"Texas","832":"Texas","903":"Texas","915":"Texas","936":"Texas","940":"Texas","945":"Texas","956":"Texas","972":"Texas","979":"Texas",
+  // Florida
+  "305":"Florida","321":"Florida","352":"Florida","386":"Florida","407":"Florida","448":"Florida","561":"Florida","627":"Florida","656":"Florida","689":"Florida","727":"Florida","730":"Florida","748":"Florida","754":"Florida","772":"Florida","786":"Florida","813":"Florida","850":"Florida","863":"Florida","904":"Florida","927":"Florida","941":"Florida","954":"Florida",
+  // New York
+  "212":"New York","315":"New York","332":"New York","347":"New York","363":"New York","516":"New York","518":"New York","585":"New York","607":"New York","631":"New York","646":"New York","680":"New York","716":"New York","718":"New York","838":"New York","845":"New York","914":"New York","917":"New York","929":"New York",
+  // A few more common ones
+  "202":"District of Columbia","303":"Colorado","312":"Illinois","313":"Michigan","314":"Missouri","317":"Indiana","319":"Iowa","404":"Georgia","410":"Maryland","412":"Pennsylvania","415":"California","425":"Washington","434":"Virginia","440":"Ohio","469":"Texas","470":"Georgia","480":"Arizona","484":"Pennsylvania","501":"Arkansas","502":"Kentucky","503":"Oregon","504":"Louisiana","505":"New Mexico","507":"Minnesota","508":"Massachusetts","509":"Washington","512":"Texas","513":"Ohio","515":"Iowa","516":"New York","517":"Michigan","518":"New York","520":"Arizona","530":"California","540":"Virginia","541":"Oregon","551":"New Jersey","559":"California","561":"Florida","562":"California","563":"Iowa","567":"Ohio","570":"Pennsylvania","571":"Virginia","573":"Missouri","574":"Indiana","575":"New Mexico","580":"Oklahoma","585":"New York","586":"Michigan","601":"Mississippi","602":"Arizona","603":"New Hampshire","605":"South Dakota","606":"Kentucky","607":"New York","608":"Wisconsin","609":"New Jersey","610":"Pennsylvania","612":"Minnesota","614":"Ohio","615":"Tennessee","616":"Michigan","617":"Massachusetts","618":"Illinois","619":"California","620":"Kansas","623":"Arizona","626":"California","628":"California","629":"Tennessee","630":"Illinois","631":"New York","636":"Missouri","641":"Iowa","646":"New York","650":"California","651":"Minnesota","657":"California","660":"Missouri","661":"California","662":"Mississippi","678":"Georgia","682":"Texas","701":"North Dakota","702":"Nevada","703":"Virginia","704":"North Carolina","706":"Georgia","708":"Illinois","712":"Iowa","713":"Texas","714":"California","715":"Wisconsin","716":"New York","717":"Pennsylvania","718":"New York","719":"Colorado","720":"Colorado","724":"Pennsylvania","727":"Florida","731":"Tennessee","732":"New Jersey","734":"Michigan","737":"Texas","740":"Ohio","747":"California","754":"Florida","757":"Virginia","760":"California","762":"Georgia","763":"Minnesota","765":"Indiana","769":"Mississippi","770":"Georgia","772":"Florida","773":"Illinois","774":"Massachusetts","775":"Nevada","779":"Illinois","781":"Massachusetts","785":"Kansas","786":"Florida","801":"Utah","802":"Vermont","803":"South Carolina","804":"Virginia","805":"California","806":"Texas","808":"Hawaii","810":"Michigan","812":"Indiana","813":"Florida","814":"Pennsylvania","815":"Illinois","816":"Missouri","817":"Texas","818":"California","828":"North Carolina","830":"Texas","831":"California","832":"Texas","843":"South Carolina","845":"New York","847":"Illinois","848":"New Jersey","850":"Florida","856":"New Jersey","857":"Massachusetts","858":"California","859":"Kentucky","860":"Connecticut","862":"New Jersey","863":"Florida","864":"South Carolina","865":"Tennessee","856":"New Jersey","870":"Arkansas","872":"Illinois","901":"Tennessee","903":"Texas","904":"Florida","906":"Michigan","907":"Alaska","908":"New Jersey","909":"California","910":"North Carolina","912":"Georgia","913":"Kansas","914":"New York","915":"Texas","916":"California","917":"New York","918":"Oklahoma","919":"North Carolina","920":"Wisconsin","925":"California","928":"Arizona","929":"New York","930":"Indiana","931":"Tennessee","936":"Texas","937":"Ohio","940":"Texas","941":"Florida","947":"Michigan","949":"California","951":"California","952":"Minnesota","954":"Florida","956":"Texas","959":"Connecticut","970":"Colorado","971":"Oregon","972":"Texas","973":"New Jersey","975":"Missouri","978":"Massachusetts","979":"Texas","980":"North Carolina","984":"North Carolina","985":"Louisiana","986":"Idaho","989":"Michigan"
+};
+
+// Extract state from E.164 or raw US number
+function detectState(number) {
+  const digits = (number || "").replace(/\D/g, "");
+  if (digits.length >= 10) {
+    const area = digits.slice(-10, -7);
+    return areaCodeToState[area] || "Unknown";
+  }
+  return "Unknown";
+}
+
+// ---------- Auth ----------
+function auth(req, res, next) {
+  const hdr = req.headers.authorization || "";
+  const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+}
+
+app.post("/login", (req, res) => {
+  const { password } = req.body || {};
+  if (!password) return res.status(400).json({ error: "Password required" });
+  if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: "Invalid credentials" });
+  const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "7d" });
+  res.json({ token, user: { role: "admin" } });
+});
+
+// ---------- Seed ----------
+const seedNumbers = [
+  { number: "+17753055823", mode: "CALL" },
+  { number: "+16693454835", mode: "CALL" },
+  { number: "+19188183039", mode: "CALL" },
+  { number: "+15088127382", mode: "CALL" },
+  { number: "+18722965039", mode: "CALL" },
+  { number: "+14172218933", mode: "CALL" },
+  { number: "+19191919191", mode: "OTP" }
+];
+(async function seedDB() {
+  try {
+    for (const num of seedNumbers) {
+      const state = detectState(num.number);
+      await PhoneMode.updateOne(
+        { number: num.number },
+        { $set: { mode: num.mode, state }, $setOnInsert: { tags: [], notes: "" } },
+        { upsert: true }
+      );
     }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:hsl(var(--background));color:hsl(var(--foreground));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
-    .container{max-width:1200px;margin:0 auto;padding:1rem}
-    .hidden{display:none!important}
-    .card{background:linear-gradient(145deg,hsl(220 13% 12%),hsl(220 13% 14%));border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:0 4px 6px -1px hsl(220 13% 4% / 0.3),0 2px 4px -2px hsl(220 13% 4% / 0.3);padding:1.25rem;margin-bottom:1rem}
-    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
-    .header h1{font-size:2rem;background:linear-gradient(135deg,hsl(var(--primary)),hsl(178 67% 65%));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .btn{padding:.7rem 1.1rem;border-radius:calc(var(--radius) - 3px);border:1px solid hsl(var(--border));background:transparent;color:hsl(var(--foreground));cursor:pointer;transition:transform .15s ease}
-    .btn:hover{transform:translateY(-1px)}
-    .btn-primary{background:hsl(var(--primary));border:none;color:hsl(220 13% 7%)}
-    .btn-destructive{background:hsl(var(--destructive) / .12);border-color:hsl(var(--destructive) / .35);color:hsl(var(--destructive))}
-    .btn-outline{background:transparent}
-    input,select,textarea{width:100%;padding:.75rem 1rem;border-radius:calc(var(--radius) - 3px);border:1px solid hsl(var(--border));background:hsl(220 13% 10%);color:hsl(var(--foreground))}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:hsl(var(--primary));box-shadow:0 0 0 2px hsl(var(--primary) / .25)}
-    .grid{display:grid;gap:1rem}
-    .grid-2{grid-template-columns:repeat(2,1fr)}
-    .grid-3{grid-template-columns:repeat(3,1fr)}
-    @media(max-width:900px){.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
-    @media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
-    .stat-num{font-size:1.8rem;font-weight:700;color:hsl(var(--primary))}
-    .mode-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .6rem;border-radius:999px;font-size:.8rem;border:1px solid}
-    .mode-call{background:hsl(var(--success) / .12);color:hsl(var(--success));border-color:hsl(var(--success) / .35)}
-    .mode-otp{background:hsl(var(--warning) / .15);color:hsl(var(--warning));border-color:hsl(var(--warning) / .35)}
-    .tag{display:inline-flex;gap:.35rem;align-items:center;padding:.25rem .6rem;border-radius:999px;border:1px solid hsl(var(--border));background:hsl(220 13% 10%);font-size:.78rem;margin:.2rem .3rem .2rem 0}
-    .status{padding:.85rem;border-radius:calc(var(--radius) - 3px);margin-bottom:1rem;display:none}
-    .ok{background:hsl(var(--success) / .12);color:hsl(var(--success));border:1px solid hsl(var(--success) / .35)}
-    .err{background:hsl(var(--destructive) / .12);color:hsl(var(--destructive));border:1px solid hsl(var(--destructive) / .35)}
-    .numbers-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem}
-    @media(min-width:800px){.numbers-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(min-width:1100px){.numbers-grid{grid-template-columns:repeat(3,1fr)}}
-    .row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
-  </style>
-</head>
-<body>
-  <!-- LOGIN -->
-  <div id="loginView" class="container">
-    <div class="card" style="max-width:420px;margin:12vh auto 0">
-      <h1 style="text-align:center;margin-bottom:.5rem;">🔐 Phone Manager</h1>
-      <p style="text-align:center;opacity:.7;margin-bottom:1rem;">Enter admin password to continue</p>
-      <div id="loginMsg" class="status err"></div>
-      <div class="grid">
-        <input id="password" type="password" placeholder="Password"/>
-        <button class="btn btn-primary" onclick="login()">Sign In</button>
-      </div>
-    </div>
-  </div>
+    console.log("✅ Seeded base numbers");
+  } catch (err) {
+    console.error("❌ Error seeding DB:", err);
+  }
+})();
 
-  <!-- APP -->
-  <div id="appView" class="container hidden">
-    <div class="header">
-      <h1>Phone Manager</h1>
-      <div class="row">
-        <button class="btn" onclick="refresh()">Refresh</button>
-        <button class="btn btn-outline" onclick="logout()">Logout</button>
-      </div>
-    </div>
+// ---------- Helpers ----------
+function normalize(num) {
+  return (num || "").toString().trim();
+}
 
-    <div id="mainMsg" class="status"></div>
-
-    <!-- Stats -->
-    <div class="stats">
-      <div class="card">
-        <div class="stat-num" id="totalCount">0</div>
-        <div>Total Numbers</div>
-      </div>
-      <div class="card">
-        <div class="stat-num" id="callCount">0</div>
-        <div>CALL Mode</div>
-      </div>
-      <div class="card">
-        <div class="stat-num" id="otpCount">0</div>
-        <div>OTP Mode</div>
-      </div>
-    </div>
-
-    <!-- Add Number -->
-    <div class="card">
-      <h3 style="margin-bottom:.6rem;">Add New Number</h3>
-      <div class="grid grid-3">
-        <div>
-          <label>Phone Number</label>
-          <input id="newNumber" type="tel" placeholder="+12345678901"/>
-        </div>
-        <div>
-          <label>Mode</label>
-          <select id="newMode">
-            <option value="CALL">CALL</option>
-            <option value="OTP">OTP</option>
-          </select>
-        </div>
-        <div>
-          <label>Tags (comma separated)</label>
-          <input id="newTags" type="text" placeholder="Work, Banking, Personal"/>
-        </div>
-      </div>
-      <div class="grid grid-2" style="margin-top:1rem">
-        <div>
-          <label>Notes (optional)</label>
-          <textarea id="newNotes" rows="2" placeholder="Optional notes"></textarea>
-        </div>
-        <div>
-          <label>State (optional, auto-detected if empty)</label>
-          <input id="newState" type="text" placeholder="Texas"/>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:1rem" onclick="addNumber()">Add Number</button>
-    </div>
-
-    <!-- Filters -->
-    <div class="card">
-      <h3 style="margin-bottom:.6rem;">Filters</h3>
-      <div class="grid grid-3">
-        <div><input id="searchQ" type="text" placeholder="Search number, tag, or notes" oninput="applyFilters()"/></div>
-        <div>
-          <select id="filterMode" onchange="applyFilters()">
-            <option value="">All Modes</option>
-            <option value="CALL">CALL</option>
-            <option value="OTP">OTP</option>
-          </select>
-        </div>
-        <div>
-          <select id="filterState" onchange="applyFilters()">
-            <option value="">All States</option>
-          </select>
-        </div>
-      </div>
-      <div class="row" style="margin-top:.6rem">
-        <label>By Tag:</label>
-        <select id="filterTag" onchange="applyFilters()"><option value="">All Tags</option></select>
-        <button class="btn btn-outline" onclick="clearFilters()">Clear</button>
-      </div>
-    </div>
-
-    <!-- Numbers -->
-    <div class="card">
-      <h3 style="margin-bottom:.6rem;">Numbers</h3>
-      <div id="numbersGrid" class="numbers-grid"></div>
-      <div id="emptyState" style="text-align:center;opacity:.6;display:none;padding:1rem">No numbers found.</div>
-    </div>
-  </div>
-
-  <script>
-    // ---------- Config ----------
-    const API_BASE = "https://backn8n.onrender.com"; // <-- your backend base URL
-    let token = null;
-    let allNumbers = [];
-    let filtered = [];
-
-    // ---------- Utils ----------
-    function show(el, type, msg) {
-      const box = document.getElementById(el);
-      box.textContent = msg;
-      box.className = type ? `status ${type}` : "status";
-      box.style.display = "block";
-      clearTimeout(box._t);
-      box._t = setTimeout(() => { box.style.display = "none"; }, 4000);
-    }
-    function hide(el) {
-      const box = document.getElementById(el);
-      box.style.display = "none";
-      box.textContent = "";
-    }
-    function uniq(arr) { return [...new Set(arr)]; }
-
-    // ---------- Auth ----------
-    async function login() {
-      const password = document.getElementById("password").value.trim();
-      try {
-        const res = await fetch(`${API_BASE}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Login failed");
-        token = data.token;
-        localStorage.setItem("pm_token", token);
-        document.getElementById("loginView").classList.add("hidden");
-        document.getElementById("appView").classList.remove("hidden");
-        await refresh();
-      } catch (e) {
-        show("loginMsg", "err", e.message);
-      }
-    }
-    function logout() {
-      token = null;
-      localStorage.removeItem("pm_token");
-      document.getElementById("appView").classList.add("hidden");
-      document.getElementById("loginView").classList.remove("hidden");
-    }
-
-    // Enforce login on load (no auto-bypass)
-    window.addEventListener("DOMContentLoaded", async () => {
-      const saved = localStorage.getItem("pm_token");
-      if (saved) token = saved;
-      // Always show login first; only proceed after successful fetch
+// ---------- Public endpoints ----------
+app.post("/lookup", async (req, res) => {
+  try {
+    const called = normalize(req.body.Called || req.query.Called || req.body.To || req.query.To);
+    const found = await PhoneMode.findOne({ number: called });
+    res.json({
+      calledNumber: called,
+      mode: found ? found.mode : "UNKNOWN",
+      from: req.body.From || req.query.From,
+      callSid: req.body.CallSid || req.query.CallSid
     });
+  } catch (err) {
+    console.error("❌ /lookup error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
-    // ---------- API ----------
-    async function api(path, options = {}) {
-      const headers = options.headers || {};
-      headers["Content-Type"] = "application/json";
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-      const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-      // If response is not JSON (e.g., HTML error), throw a useful error
-      const text = await res.text();
-      try {
-        const data = JSON.parse(text);
-        if (!res.ok) throw new Error(data.error || "Request failed");
-        return data;
-      } catch {
-        throw new Error(`Unexpected response (not JSON) from ${path}`);
-      }
+app.get("/health", async (req, res) => {
+  try {
+    await mongoose.connection.db.admin().ping();
+    res.json({ status: "healthy", database: "connected", timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ status: "unhealthy", database: "disconnected", error: err.message });
+  }
+});
+
+// ---------- Authenticated API ----------
+app.get("/numbers", auth, async (req, res) => {
+  try {
+    const all = await PhoneMode.find().sort({ createdAt: -1 });
+    res.json(all);
+  } catch (err) {
+    console.error("❌ /numbers error:", err);
+    res.status(500).json({ error: "Failed to fetch numbers" });
+  }
+});
+
+app.post("/add-number", auth, async (req, res) => {
+  try {
+    const { number, mode, tags = [], notes = "", state } = req.body;
+    if (!number || !mode) return res.status(400).json({ error: "Number and mode are required" });
+    if (!["CALL", "OTP"].includes(mode)) return res.status(400).json({ error: "Mode must be CALL or OTP" });
+
+    const normalized = normalize(number);
+    if (!normalized) return res.status(400).json({ error: "Invalid number format" });
+
+    const exists = await PhoneMode.findOne({ number: normalized });
+    if (exists) return res.status(400).json({ error: "Number already exists" });
+
+    const finalState = state || detectState(normalized);
+
+    const saved = await new PhoneMode({
+      number: normalized,
+      mode,
+      tags: Array.isArray(tags) ? tags : [],
+      notes: typeof notes === "string" ? notes : "",
+      state: finalState
+    }).save();
+
+    console.log("✅ Added:", saved.number, saved.mode, saved.state);
+    res.json({ success: true, message: "Number added successfully", data: saved });
+  } catch (err) {
+    console.error("❌ /add-number error:", err);
+    if (err.code === 11000) return res.status(400).json({ error: "Number already exists" });
+    res.status(500).json({ error: "Failed to add number" });
+  }
+});
+
+// Backward-compatible: update mode only
+app.put("/update-mode", auth, async (req, res) => {
+  try {
+    const { id, mode } = req.body;
+    if (!id || !mode) return res.status(400).json({ error: "ID and mode are required" });
+    if (!["CALL", "OTP"].includes(mode)) return res.status(400).json({ error: "Mode must be CALL or OTP" });
+
+    const updated = await PhoneMode.findByIdAndUpdate(id, { mode }, { new: true });
+    if (!updated) return res.status(404).json({ error: "Number not found" });
+
+    res.json({ success: true, message: "Mode updated successfully", data: updated });
+  } catch (err) {
+    console.error("❌ /update-mode error:", err);
+    res.status(500).json({ error: "Failed to update mode" });
+  }
+});
+
+// New: update mode/tags/notes/state
+app.put("/update-number", auth, async (req, res) => {
+  try {
+    const { id, mode, tags, notes, state } = req.body;
+    if (!id) return res.status(400).json({ error: "ID is required" });
+
+    const update = {};
+    if (mode && ["CALL", "OTP"].includes(mode)) update.mode = mode;
+    if (Array.isArray(tags)) update.tags = tags;
+    if (typeof notes === "string") update.notes = notes;
+    if (typeof state === "string" && state.trim().length) update.state = state.trim();
+
+    const updated = await PhoneMode.findByIdAndUpdate(id, update, { new: true });
+    if (!updated) return res.status(404).json({ error: "Number not found" });
+
+    res.json({ success: true, message: "Number updated successfully", data: updated });
+  } catch (err) {
+    console.error("❌ /update-number error:", err);
+    res.status(500).json({ error: "Failed to update number" });
+  }
+});
+
+app.delete("/delete-number/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const del = await PhoneMode.findByIdAndDelete(id);
+    if (!del) return res.status(404).json({ error: "Number not found" });
+    res.json({ success: true, message: "Number deleted successfully", data: del });
+  } catch (err) {
+    console.error("❌ /delete-number error:", err);
+    res.status(500).json({ error: "Failed to delete number" });
+  }
+});
+
+app.get("/stats", auth, async (req, res) => {
+  try {
+    const total = await PhoneMode.countDocuments();
+    const call = await PhoneMode.countDocuments({ mode: "CALL" });
+    const otp = await PhoneMode.countDocuments({ mode: "OTP" });
+    res.json({ total, call, otp, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error("❌ /stats error:", err);
+    res.status(500).json({ error: "Failed to fetch statistics" });
+  }
+});
+
+app.post("/bulk-add", auth, async (req, res) => {
+  try {
+    const { numbers } = req.body;
+    if (!Array.isArray(numbers) || numbers.length === 0) {
+      return res.status(400).json({ error: "Numbers array is required" });
     }
 
-    async function refresh() {
+    const results = { added: [], errors: [], skipped: [] };
+    for (const item of numbers) {
       try {
-        const list = await api("/numbers");
-        allNumbers = list;
-        renderFilters();
-        applyFilters();
-        const stats = await api("/stats");
-        document.getElementById("totalCount").textContent = stats.total || list.length;
-        document.getElementById("callCount").textContent = (stats.call ?? list.filter(n => n.mode === "CALL").length);
-        document.getElementById("otpCount").textContent = (stats.otp ?? list.filter(n => n.mode === "OTP").length);
-        hide("mainMsg");
+        const number = normalize(item.number);
+        const mode = ["CALL", "OTP"].includes(item.mode) ? item.mode : "CALL";
+        const tags = Array.isArray(item.tags) ? item.tags : [];
+        const notes = typeof item.notes === "string" ? item.notes : "";
+        const state = item.state || detectState(number);
+
+        if (!number) {
+          results.errors.push({ number: item.number, error: "Invalid number" });
+          continue;
+        }
+
+        const exists = await PhoneMode.findOne({ number });
+        if (exists) {
+          results.skipped.push({ number, reason: "Already exists" });
+          continue;
+        }
+
+        const saved = await new PhoneMode({ number, mode, tags, notes, state }).save();
+        results.added.push(saved);
       } catch (e) {
-        show("mainMsg", "err", e.message);
+        results.errors.push({ number: item.number, error: e.message });
       }
     }
 
-    async function addNumber() {
-      const number = document.getElementById("newNumber").value.trim();
-      const mode = document.getElementById("newMode").value;
-      const tags = document.getElementById("newTags").value.split(",").map(t => t.trim()).filter(Boolean);
-      const notes = document.getElementById("newNotes").value.trim();
-      const state = document.getElementById("newState").value.trim(); // optional; backend auto-detects if empty
+    res.json({
+      success: true,
+      message: `Bulk add: ${results.added.length} added, ${results.skipped.length} skipped, ${results.errors.length} errors`,
+      results
+    });
+  } catch (err) {
+    console.error("❌ /bulk-add error:", err);
+    res.status(500).json({ error: "Failed to process bulk add" });
+  }
+});
 
-      if (!number.startsWith("+")) {
-        show("mainMsg", "err", "Phone number must start with + (E.164)");
-        return;
-      }
-      try {
-        await api("/add-number", {
-          method: "POST",
-          body: JSON.stringify({ number, mode, tags, notes, state })
-        });
-        show("mainMsg", "ok", "Number added successfully");
-        document.getElementById("newNumber").value = "";
-        document.getElementById("newMode").value = "CALL";
-        document.getElementById("newTags").value = "";
-        document.getElementById("newNotes").value = "";
-        document.getElementById("newState").value = "";
-        await refresh();
-      } catch (e) {
-        show("mainMsg", "err", e.message);
-      }
+app.get("/search", auth, async (req, res) => {
+  try {
+    const { q, mode, state } = req.query;
+    const query = {};
+
+    if (q) {
+      query.$or = [
+        { number: { $regex: q, $options: "i" } },
+        { notes: { $regex: q, $options: "i" } },
+        { tags: { $regex: q, $options: "i" } }
+      ];
     }
+    if (mode && ["CALL", "OTP"].includes(mode)) query.mode = mode;
+    if (state && state.trim().length) query.state = state.trim();
 
-    async function saveEdits(id) {
-      const card = document.querySelector(`[data-id="${id}"]`);
-      const mode = card.querySelector(".edit-mode").value;
-      const notes = card.querySelector(".edit-notes").value.trim();
-      const state = card.querySelector(".edit-state").value.trim();
-      const tags = card.querySelector(".edit-tags").value.split(",").map(t => t.trim()).filter(Boolean);
-      try {
-        await api("/update-number", { method: "PUT", body: JSON.stringify({ id, mode, tags, notes, state }) });
-        show("mainMsg", "ok", "Number updated");
-        await refresh();
-      } catch (e) {
-        show("mainMsg", "err", e.message);
-      }
-    }
+    const list = await PhoneMode.find(query).sort({ createdAt: -1 });
+    res.json({ query: { q, mode, state }, count: list.length, numbers: list });
+  } catch (err) {
+    console.error("❌ /search error:", err);
+    res.status(500).json({ error: "Failed to search numbers" });
+  }
+});
 
-    async function changeModeQuick(id, mode) {
-      try {
-        await api("/update-mode", { method: "PUT", body: JSON.stringify({ id, mode }) });
-        await refresh();
-      } catch (e) {
-        show("mainMsg", "err", e.message);
-      }
-    }
+// ---------- Global error handler ----------
+app.use((err, req, res, next) => {
+  console.error("❌ Unhandled error:", err);
+  res.status(500).json({ error: "Internal server error" });
+});
 
-    async function removeNumber(id) {
-      if (!confirm("Delete this number?")) return;
-      try {
-        await api(`/delete-number/${id}`, { method: "DELETE" });
-        show("mainMsg", "ok", "Number deleted");
-        await refresh();
-      } catch (e) {
-        show("mainMsg", "err", e.message);
-      }
-    }
-
-    // ---------- Filters ----------
-    function renderFilters() {
-      // Tags
-      const allTags = uniq(allNumbers.flatMap(n => Array.isArray(n.tags) ? n.tags : []));
-      const tagSel = document.getElementById("filterTag");
-      tagSel.innerHTML = `<option value="">All Tags</option>` + allTags.map(t => `<option value="${t}">${t}</option>`).join("");
-
-      // States
-      const allStates = uniq(allNumbers.map(n => n.state || "Unknown")).filter(Boolean).sort();
-      const stateSel = document.getElementById("filterState");
-      stateSel.innerHTML = `<option value="">All States</option>` + allStates.map(s => `<option value="${s}">${s}</option>`).join("");
-    }
-
-    function applyFilters() {
-      const q = document.getElementById("searchQ").value.toLowerCase().trim();
-      const mode = document.getElementById("filterMode").value;
-      const tag = document.getElementById("filterTag").value;
-      const state = document.getElementById("filterState").value;
-
-      filtered = allNumbers.filter(n => {
-        const matchesQ = !q ||
-          n.number.toLowerCase().includes(q) ||
-          (n.notes || "").toLowerCase().includes(q) ||
-          (n.tags || []).some(t => t.toLowerCase().includes(q));
-        const matchesMode = !mode || n.mode === mode;
-        const matchesTag = !tag || (n.tags || []).includes(tag);
-        const matchesState = !state || (n.state === state);
-        return matchesQ && matchesMode && matchesTag && matchesState;
-      });
-
-      renderNumbers();
-    }
-
-    function clearFilters() {
-      document.getElementById("searchQ").value = "";
-      document.getElementById("filterMode").value = "";
-      document.getElementById("filterTag").value = "";
-      document.getElementById("filterState").value = "";
-      applyFilters();
-    }
-
-    // ---------- Render ----------
-    function renderNumbers() {
-      const grid = document.getElementById("numbersGrid");
-      const empty = document.getElementById("emptyState");
-      if (filtered.length === 0) {
-        grid.innerHTML = "";
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-
-      grid.innerHTML = filtered.map(n => {
-        const tags = (n.tags || []).map(t => `<span class="tag">${t}</span>`).join("");
-        return `
-          <div class="card" data-id="${n._id}">
-            <div class="row" style="justify-content:space-between;align-items:flex-start">
-              <div>
-                <div style="font-size:1.1rem;font-weight:600;color:hsl(var(--primary));">${n.number}</div>
-                <div class="row" style="margin:.4rem 0">
-                  <span class="mode-badge ${n.mode === "CALL" ? "mode-call":"mode-otp"}">${n.mode}</span>
-                  <span class="tag">${n.state || "Unknown"}</span>
-                </div>
-                ${tags ? `<div class="row" style="margin:.2rem 0">${tags}</div>` : ""}
-                ${n.notes ? `<div style="opacity:.8;margin-top:.3rem"><em>${n.notes}</em></div>` : ""}
-              </div>
-              <div class="row">
-                <select class="edit-mode" onchange="changeModeQuick('${n._id}', this.value)">
-                  <option value="CALL" ${n.mode === "CALL" ? "selected":""}>CALL</option>
-                  <option value="OTP" ${n.mode === "OTP" ? "selected":""}>OTP</option>
-                </select>
-                <button class="btn btn-destructive" onclick="removeNumber('${n._id}')">Delete</button>
-              </div>
-            </div>
-            <div style="margin-top:.7rem" class="grid grid-3">
-              <input class="edit-tags" type="text" placeholder="tags, comma,separated" value="${(n.tags||[]).join(", ")}"/>
-              <input class="edit-state" type="text" placeholder="State (e.g., Texas)" value="${n.state || ""}"/>
-              <input class="edit-notes" type="text" placeholder="Notes" value="${n.notes || ""}"/>
-            </div>
-            <div class="row" style="margin-top:.6rem">
-              <button class="btn btn-primary" onclick="saveEdits('${n._id}')">Save Changes</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-  </script>
-</body>
-</html>
+// ---------- Start ----------
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log("🔐 Auth: POST /login");
+  console.log("📞 GET /numbers (auth)");
+  console.log("➕ POST /add-number (auth)");
+  console.log("✏️ PUT /update-number (auth)");
+  console.log("♻️ PUT /update-mode (auth)");
+  console.log("🗑️ DELETE /delete-number/:id (auth)");
+  console.log("📊 GET /stats (auth)");
+  console.log("📥 POST /bulk-add (auth)");
+  console.log("🔎 GET /search (auth)");
+  console.log("🩺 GET /health (public)");
+  console.log("☎️ POST /lookup (public)");
+});
