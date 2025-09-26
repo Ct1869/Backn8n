@@ -1,11 +1,19 @@
 {
-  "name": "phone-manager-frontend",
+  "name": "n8n",
   "version": "1.0.0",
-  "description": "Static Phone Manager frontend",
+  "main": "server.js",
   "scripts": {
-    "start": "serve -s ."
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
-  "devDependencies": {
-    "serve": "^14.2.1"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.18.1"
   }
 }
